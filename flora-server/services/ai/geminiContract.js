@@ -36,8 +36,22 @@ const CANONICAL_PRODUCT_SCHEMA = {
       description: 'Optional. Physical sizes and dimensions (e.g., 20 x 15 x 12 cm).'
     },
     specifications: {
-      type: 'object',
-      description: 'Optional. Arbitrary key-value specifications extracted from tables (e.g., power: "200W", voltage: "24V").'
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            description: 'The specification name exactly as found in the document table or text.'
+          },
+          value: {
+            type: 'string',
+            description: 'The specification value exactly as found in the document.'
+          }
+        },
+        required: ['name', 'value']
+      },
+      description: 'Optional. Product specifications extracted from tables or text as name-value pairs.'
     },
     complianceFlags: {
       type: 'array',

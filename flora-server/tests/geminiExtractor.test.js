@@ -22,6 +22,16 @@ test('Canonical product schema is available to the AI layer', () => {
         CANONICAL_PRODUCT_SCHEMA.required,
         ['productName', 'sku', 'brand', 'price', 'currency']
     );
+
+    assert.equal(
+        CANONICAL_PRODUCT_SCHEMA.properties.specifications.type,
+        'array'
+    );
+
+    assert.deepEqual(
+        CANONICAL_PRODUCT_SCHEMA.properties.specifications.items.required,
+        ['name', 'value']
+    );
 });
 
 test('Extraction prompt contains supplied document content', () => {
@@ -67,4 +77,30 @@ test('Extractor rejects non-string document content', async () => {
             message: 'documentText must be a non-empty string'
         }
     );
+});
+test('Extraction prompt preserves OCR table content', () => {
+    const documentText = `
+Product Catalogue
+
+Product: FloraGrow 200W LED
+SKU: FG-200
+
+| Specification | Value |
+|---|---|
+| Power | 200W |
+| Voltage | 24V |
+| Dimensions | 20 x 15 x 12 cm |
+
+Compliance: CE, RoHS
+`;
+
+    const prompt = buildExtractionPrompt(documentText);
+
+    assert.match(prompt, /Specification/);
+    assert.match(prompt, /Power/);
+    assert.match(prompt, /200W/);
+    assert.match(prompt, /Voltage/);
+    assert.match(prompt, /24V/);
+    assert.match(prompt, /Dimensions/);
+    assert.match(prompt, /20 x 15 x 12 cm/);
 });

@@ -1,4 +1,5 @@
 const { extractProduct } = require('./geminiExtractor');
+const { normalizeGeminiProduct } = require('./productNormalizer');
 const { validateExtractedData } = require('../validationEngine');
 
 /**
@@ -9,7 +10,9 @@ const { validateExtractedData } = require('../validationEngine');
  *        ↓
  * Gemini extraction
  *        ↓
- * canonical product JSON
+ * Gemini extraction format
+ *        ↓
+ * Canonical Product normalization
  *        ↓
  * Validation Engine
  *        ↓
@@ -25,9 +28,21 @@ async function processProductDocument(documentText) {
 
     const rawGeminiText = await extractProduct(documentText);
 
-    const validationResult = validateExtractedData(rawGeminiText);
+    let geminiProduct;
 
-    return validationResult;
+    try {
+        geminiProduct = JSON.parse(rawGeminiText);
+    } catch (error) {
+        // Pass malformed Gemini JSON to the Validation Engine.
+        // The Validation Engine owns parsing-error classification.
+        return validateExtractedData(rawGeminiText);
+    }
+
+    const canonicalProduct = normalizeGeminiProduct(geminiProduct);
+
+    return validateExtractedData(
+        JSON.stringify(canonicalProduct)
+    );
 }
 
 module.exports = {
