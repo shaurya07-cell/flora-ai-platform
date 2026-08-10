@@ -1,3 +1,4 @@
+import floraLogo from '../assets/flora-logo.png';
 import React, { useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
@@ -38,11 +39,16 @@ export const AppLayout = () => {
     <div className="min-h-screen bg-background flex flex-col font-sans">
       {/* Mobile Top Navbar */}
       <header className="lg:hidden h-14 bg-surface border-b border-brand-border flex items-center justify-between px-4 z-30">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded bg-primary flex items-center justify-center text-white">
-            <Cpu className="h-5 w-5" />
-          </div>
-          <span className="font-bold text-brand-text tracking-tight">Flora Intelligence</span>
+        <div className="flex items-center gap-3">
+          <img
+            src={floraLogo}
+            alt="Flora"
+            className="h-12 w-auto object-contain"
+          />
+
+          <span className="font-bold text-brand-text text-xl">
+            Flora Intelligence
+          </span>
         </div>
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -64,13 +70,20 @@ export const AppLayout = () => {
           `}
         >
           {/* Brand Header (Desktop only) */}
-          <div className="hidden lg:flex h-16 items-center px-6 border-b border-brand-border gap-2">
-            <div className="h-9 w-9 rounded bg-primary flex items-center justify-center text-white">
-              <Cpu className="h-5 w-5" />
-            </div>
+          <div className="hidden lg:flex h-16 items-center px-6 border-b border-brand-border gap-3">
+            <img
+              src={floraLogo}
+              alt="Flora"
+              className="h-12 w-auto object-contain"
+            />
+
             <div className="flex flex-col">
-              <span className="font-bold text-brand-text leading-none tracking-tight">Flora</span>
-              <span className="text-[10px] text-accent font-semibold tracking-wider uppercase mt-0.5">Intelligence</span>
+              <span className="font-bold text-brand-text leading-none tracking-tight">
+                Flora
+              </span>
+              <span className="text-[10px] text-accent font-semibold tracking-wider uppercase mt-0.5">
+                Intelligence
+              </span>
             </div>
           </div>
 
