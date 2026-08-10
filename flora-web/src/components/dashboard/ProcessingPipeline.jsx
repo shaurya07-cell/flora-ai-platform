@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, ArrowDown, UploadCloud, Eye, BrainCircuit, CheckSquare, Database, Loader2 } from 'lucide-react';
+import { ArrowDown, UploadCloud, Eye, BrainCircuit, CheckSquare, Database } from 'lucide-react';
 
 const iconMap = {
   Upload: UploadCloud,
@@ -12,77 +12,84 @@ const iconMap = {
 export const ProcessingPipeline = ({ stages }) => {
   return (
     <div className="bg-surface border border-brand-border rounded p-6 shadow-sm">
-      <div className="flex flex-col mb-4">
+      <div className="flex flex-col mb-5">
         <h3 className="text-sm font-bold tracking-tight text-brand-text uppercase">Ingestion Pipeline</h3>
         <p className="text-xs text-brand-muted mt-0.5">Current operational flow from source upload to database indexing.</p>
       </div>
 
-      {/* Desktop view: Horizontal Row. Mobile view: Column list with connectors. */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-2">
+      {/* Responsive horizontal flow row with scroll overflow on small screens */}
+      <div className="flex flex-row items-center w-full overflow-x-auto pb-2 lg:pb-0 gap-1.5 lg:gap-2 select-none scrollbar-thin">
         {stages.map((stage, index) => {
           const Icon = iconMap[stage.name] || UploadCloud;
           const isLast = index === stages.length - 1;
 
-          // Compute style tokens
-          const statusStyles = {
+          // Determine next connector style
+          const nextStage = !isLast ? stages[index + 1] : null;
+          
+          let connectorClass = 'bg-brand-border';
+          if (nextStage) {
+            // Signal travels from OCR (Complete) towards Gemini AI (Processing)
+            if (stage.name === 'OCR' && nextStage.name === 'Gemini AI') {
+              connectorClass = 'animate-signal-connector';
+            } else if (stage.status === 'Complete' && nextStage.status === 'Complete') {
+              connectorClass = 'bg-primary';
+            }
+          }
+
+          // Compute style configurations mapping the precise design language
+          const statusConfig = {
             Complete: {
-              container: 'border-emerald-200 bg-emerald-50/50',
-              icon: 'text-status-success bg-emerald-50 border-emerald-200',
-              badge: 'bg-emerald-100 text-status-success border-emerald-200'
+              container: 'border-brand-border bg-status-successSoft',
+              icon: 'text-status-success bg-white border-brand-border animate-state-pop',
+              badge: 'bg-white text-status-success border-brand-border'
             },
             Processing: {
-              container: 'border-cyan-200 bg-cyan-50/30 animate-pulse',
-              icon: 'text-status-info bg-cyan-50 border-cyan-200',
-              badge: 'bg-cyan-100 text-status-info border-cyan-200'
+              container: 'border-brand-border bg-status-infoSoft',
+              icon: 'text-status-info bg-white border-brand-border',
+              badge: 'bg-white text-status-info border-brand-border'
             },
             Waiting: {
-              container: 'border-slate-200 bg-slate-50/30',
-              icon: 'text-brand-muted bg-slate-50 border-slate-200',
-              badge: 'bg-slate-100 text-brand-muted border-slate-200'
+              container: 'border-brand-border bg-background',
+              icon: 'text-brand-muted bg-white border-brand-border',
+              badge: 'bg-white text-brand-muted border-brand-border'
             }
           }[stage.status] || {
-            container: 'border-slate-200 bg-slate-50/30',
-            icon: 'text-brand-muted bg-slate-50 border-slate-200',
-            badge: 'bg-slate-100 text-brand-muted border-slate-200'
+            container: 'border-brand-border bg-background',
+            icon: 'text-brand-muted bg-white border-brand-border',
+            badge: 'bg-white text-brand-muted border-brand-border'
           };
 
           return (
             <React.Fragment key={stage.name}>
-              {/* Pipeline Stage Card */}
-              <div className={`flex-1 border rounded p-4 flex items-center justify-between transition-all duration-200 ${statusStyles.container}`}>
-                <div className="flex items-center gap-3">
-                  {/* Icon with spinner indicator for processing */}
-                  <div className={`h-10 w-10 rounded border flex items-center justify-center relative ${statusStyles.icon}`}>
-                    <Icon className="h-5 w-5" />
-                    {stage.status === 'Processing' && (
-                      <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
-                        <Loader2 className="h-3 w-3 text-status-info animate-spin" />
-                      </span>
-                    )}
+              {/* Pipeline Stage Card - Fixed height, equal flexible width on desktop */}
+              <div className={`flex-1 min-w-[190px] lg:min-w-0 shrink-0 h-[72px] border rounded p-3 flex items-center justify-between transition-all duration-150 relative ${statusConfig.container}`}>
+                {/* Slow, restrained pulse ring surrounding active stage */}
+                {stage.status === 'Processing' && (
+                  <span className="absolute -inset-[1px] rounded border border-status-info/50 animate-pulse pointer-events-none" />
+                )}
+
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className={`h-8 w-8 rounded border flex items-center justify-center shrink-0 ${statusConfig.icon}`}>
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-brand-text">{stage.name}</h4>
-                    <p className="text-[10px] text-brand-muted font-medium mt-0.5">{stage.description}</p>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-semibold text-brand-text leading-none">{stage.name}</h4>
+                    <p className="text-[9px] text-brand-muted font-medium mt-1 leading-normal truncate max-w-[90px] sm:max-w-none">
+                      {stage.description}
+                    </p>
                   </div>
                 </div>
 
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm border ${statusStyles.badge}`}>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm border shrink-0 ${statusConfig.badge}`}>
                   {stage.status}
                 </span>
               </div>
 
-              {/* Responsive Connectors */}
+              {/* Connecting elements */}
               {!isLast && (
-                <>
-                  {/* Desktop connector (Right Arrow) */}
-                  <div className="hidden lg:flex items-center justify-center px-1 text-slate-300">
-                    <ArrowRight className="h-5 w-5" />
-                  </div>
-                  {/* Mobile connector (Down Arrow) */}
-                  <div className="lg:hidden flex items-center justify-center text-slate-300 py-0.5">
-                    <ArrowDown className="h-4 w-4" />
-                  </div>
-                </>
+                <div className="w-5 lg:w-8 h-1 rounded-full overflow-hidden shrink-0 bg-brand-border">
+                  <div className={`w-full h-full ${connectorClass}`} />
+                </div>
               )}
             </React.Fragment>
           );
