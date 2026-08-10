@@ -2,7 +2,20 @@ const { GoogleGenAI } = require('@google/genai');
 const { CANONICAL_PRODUCT_SCHEMA } = require('./geminiContract');
 
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+class GeminiExtractionError extends Error {
+    constructor(message, options = {}) {
+        super(message);
+        this.name = 'GeminiExtractionError';
 
+        if (options.cause) {
+            this.cause = options.cause;
+        }
+
+        if (options.code) {
+            this.code = options.code;
+        }
+    }
+}
 function createGeminiClient() {
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -11,6 +24,14 @@ function createGeminiClient() {
     }
 
     return new GoogleGenAI({ apiKey });
+}
+
+let aiInstance;
+function getGeminiClient() {
+    if (!aiInstance) {
+        aiInstance = createGeminiClient();
+    }
+    return aiInstance;
 }
 
 function buildExtractionPrompt(documentText) {
@@ -49,16 +70,41 @@ async function extractProduct(documentText) {
         throw new TypeError('documentText must be a non-empty string');
     }
 
-    const ai = createGeminiClient();
+    const ai = getGeminiClient();
+    class GeminiExtractionError extends Error {
+        constructor(message, options = {}) {
+            super(message);
+            this.name = 'GeminiExtractionError';
 
-    const response = await ai.models.generateContent({
-        model: DEFAULT_MODEL,
-        contents: buildExtractionPrompt(documentText),
-        config: {
-            responseMimeType: 'application/json',
-            responseSchema: CANONICAL_PRODUCT_SCHEMA,
+            if (options.cause) {
+                this.cause = options.cause;
+            }
+
+            if (options.code) {
+                this.code = options.code;
+            }
         }
-    });
+    }
+    let response;
+
+    try {
+        response = await ai.models.generateContent({
+            model: DEFAULT_MODEL,
+            contents: buildExtractionPrompt(documentText),
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema: CANONICAL_PRODUCT_SCHEMA,
+            }
+        });
+    } catch (error) {
+        throw new GeminiExtractionError(
+            'Gemini extraction request failed',
+            {
+                code: 'GEMINI_API_ERROR',
+                cause: error
+            }
+        );
+    }
 
     if (!response.text) {
         throw new Error('Gemini returned an empty response');
@@ -69,5 +115,6 @@ async function extractProduct(documentText) {
 
 module.exports = {
     extractProduct,
-    buildExtractionPrompt
+    buildExtractionPrompt,
+    GeminiExtractionError
 };
