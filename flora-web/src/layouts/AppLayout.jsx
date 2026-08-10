@@ -86,7 +86,7 @@ export const AppLayout = () => {
                   className={({ isActive }) => `
                     flex items-center px-3 py-2.5 text-sm font-medium rounded transition-colors
                     ${isActive
-                      ? 'bg-blue-50 text-primary'
+                      ? 'bg-primary-soft text-primary'
                       : 'text-brand-muted hover:text-brand-text hover:bg-slate-50'
                     }
                   `}
