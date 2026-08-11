@@ -82,6 +82,7 @@ export const Dashboard = () => {
 
   // Mock validation queue alerts
   const validationAlerts = [
+
   ];
 
   // Mock recently extracted products
