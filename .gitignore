@@ -30,3 +30,6 @@ coverage/
 
 # Runtime files
 *.pid
+
+# Vite
+.vite/
