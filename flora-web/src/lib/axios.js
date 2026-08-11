@@ -1,24 +1,25 @@
 import axios from 'axios';
 
-// Create a centralized Axios instance
+// Centralized Axios instance for FLORA frontend → backend communication
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 15000, // 15 seconds request timeout
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL ||
+    'http://localhost:5000/api/v1',
+
+  timeout: 15000,
 });
 
-// Response interceptor for normalized API responses or error payloads
+// Normalize FLORA API errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Format error response matching the Flora error structure
     const errorPayload = error.response?.data?.error || {
       code: 'NETWORK_ERROR',
-      message: error.message || 'Unable to connect to the backend server.',
-      details: error.response?.data || null
+      message:
+        error.message || 'Unable to connect to the backend server.',
+      details: error.response?.data || null,
     };
+
     return Promise.reject(errorPayload);
   }
 );
