@@ -30,3 +30,13 @@ coverage/
 
 # Runtime files
 *.pid
+
+# Vite
+.vite/
+# Python cache
+__pycache__/
+*.pyc
+
+# Python cache
+__pycache__/
+*.pyc
