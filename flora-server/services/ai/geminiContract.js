@@ -3,7 +3,7 @@
  * 
  * Defines the structural layout and validation rules for products extracted from catalogs.
  */
-const CANONICAL_PRODUCT_SCHEMA = {
+export const CANONICAL_PRODUCT_SCHEMA = {
   type: 'object',
   description: 'Schema representing a parsed canonical product extracted from catalog sources.',
   properties: {
@@ -62,8 +62,4 @@ const CANONICAL_PRODUCT_SCHEMA = {
     }
   },
   required: ['productName', 'sku', 'brand', 'price', 'currency']
-};
-
-module.exports = {
-  CANONICAL_PRODUCT_SCHEMA
 };

@@ -332,6 +332,6 @@ function validateExtractedData(rawGeminiText) {
   };
 }
 
-module.exports = {
+export {
   validateExtractedData
 };

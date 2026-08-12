@@ -78,7 +78,7 @@ function normalizeGeminiProduct(geminiProduct) {
     };
 }
 
-module.exports = {
+export {
     normalizeSpecifications,
     normalizeGeminiProduct
 };

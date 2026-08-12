@@ -1,6 +1,6 @@
-const { extractProduct } = require('./geminiExtractor');
-const { normalizeGeminiProduct } = require('./productNormalizer');
-const { validateExtractedData } = require('../validationEngine');
+import { extractProduct } from './geminiExtractor.js';
+import { normalizeGeminiProduct } from './productNormalizer.js';
+import { validateExtractedData } from '../validationEngine.js';
 
 /**
  * Runs Flora's complete AI product intelligence pipeline.
@@ -45,6 +45,6 @@ async function processProductDocument(documentText) {
     );
 }
 
-module.exports = {
+export {
     processProductDocument
 };

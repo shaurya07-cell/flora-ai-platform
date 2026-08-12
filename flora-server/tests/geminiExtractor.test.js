@@ -1,14 +1,14 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
+import test from 'node:test';
+import assert from 'node:assert/strict';
 
-const {
+import {
     buildExtractionPrompt,
     extractProduct
-} = require('../services/ai/geminiExtractor');
+} from '../services/ai/geminiExtractor.js';
 
-const {
+import {
     CANONICAL_PRODUCT_SCHEMA
-} = require('../services/ai/geminiContract');
+} from '../services/ai/geminiContract.js';
 
 test('Gemini extractor module exports required functions', () => {
     assert.equal(typeof buildExtractionPrompt, 'function');

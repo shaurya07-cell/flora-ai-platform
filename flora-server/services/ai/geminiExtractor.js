@@ -1,5 +1,5 @@
-const { GoogleGenAI } = require('@google/genai');
-const { CANONICAL_PRODUCT_SCHEMA } = require('./geminiContract');
+import { GoogleGenAI } from '@google/genai';
+import { CANONICAL_PRODUCT_SCHEMA } from './geminiContract.js';
 
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 class GeminiExtractionError extends Error {
@@ -113,7 +113,7 @@ async function extractProduct(documentText) {
     return response.text;
 }
 
-module.exports = {
+export {
     extractProduct,
     buildExtractionPrompt,
     GeminiExtractionError

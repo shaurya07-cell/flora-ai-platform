@@ -1,6 +1,6 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const { validateExtractedData } = require('../services/validationEngine');
+import test from 'node:test';
+import assert from 'node:assert';
+import { validateExtractedData } from '../services/validationEngine.js';
 
 // Ensure clean environment variables before tests
 delete process.env.BRAND_WHITELIST;

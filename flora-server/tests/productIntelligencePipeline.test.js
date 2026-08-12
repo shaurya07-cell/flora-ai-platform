@@ -1,9 +1,9 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
+import test from 'node:test';
+import assert from 'node:assert/strict';
 
-const {
+import {
     processProductDocument
-} = require('../services/ai/productIntelligencePipeline');
+} from '../services/ai/productIntelligencePipeline.js';
 
 test('Pipeline exports processProductDocument', () => {
     assert.equal(typeof processProductDocument, 'function');
