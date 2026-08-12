@@ -1,8 +1,28 @@
+import os
+
+# pyrefly: ignore [missing-import]
 import pytesseract
+# pyrefly: ignore [missing-import]
+from dotenv import load_dotenv
+# pyrefly: ignore [missing-import]
 from PIL import Image
 
-# ✅ Set correct path to Tesseract
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# Load environment variables from the project root
+load_dotenv()
+
+tesseract_cmd = os.getenv("TESSERACT_CMD")
+
+if not tesseract_cmd:
+    raise RuntimeError(
+        "TESSERACT_CMD is not configured in the .env file."
+    )
+
+if not os.path.isfile(tesseract_cmd):
+    raise RuntimeError(
+        f"Tesseract executable not found at: {tesseract_cmd}"
+    )
+
+pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
 
 
 def extract_text_from_image(file_path):

@@ -1,2 +1,5 @@
 # Flora OCR dependencies
 pymupdf
+Pillow
+pytesseract
+python-dotenv
