@@ -1,0 +1,2 @@
+# Flora OCR dependencies
+pymupdf
