@@ -1,0 +1,190 @@
+[
+  {
+    "id": "P001",
+    "name": "ABC Industrial Motor M500",
+    "brand": "ABC",
+    "model": "M500",
+    "category": "Industrial Motor",
+    "specifications": {
+      "power": "0.5 kW",
+      "voltage": "0.22 kV",
+      "weight": "2500 g"
+    },
+    "_classification": {
+      "canonical_category": "Industrial Motor",
+      "category_id": "CAT_MOTOR",
+      "subcategory": null,
+      "confidence": 0.95,
+      "matched_by": "category_alias"
+    }
+  },
+  {
+    "id": "P002",
+    "name": "ABC M-500 Industrial Motor",
+    "brand": "ABC Motors",
+    "model": "M-500",
+    "category": "Industrial Motor",
+    "specifications": {
+      "power": "500 W",
+      "voltage": "220 V",
+      "weight": "2.5 kg"
+    },
+    "_classification": {
+      "canonical_category": "Industrial Motor",
+      "category_id": "CAT_MOTOR",
+      "subcategory": null,
+      "confidence": 1.0,
+      "matched_by": "category_exact"
+    }
+  },
+  {
+    "id": "P003",
+    "name": "FlowTech Centrifugal Pump FP-100",
+    "brand": "FlowTech",
+    "model": "FP-100",
+    "category": "Pump",
+    "specifications": {
+      "flow_rate": "50 L/min",
+      "power": "0.75 kW",
+      "max_pressure": "5 bar"
+    },
+    "subcategory": "Centrifugal Pump",
+    "_classification": {
+      "canonical_category": "Pump",
+      "category_id": "CAT_PUMP",
+      "subcategory": "Centrifugal Pump",
+      "confidence": 1.0,
+      "matched_by": "category_exact"
+    }
+  },
+  {
+    "id": "P004",
+    "name": "FlowTech High-Pressure Centrifugal Pump FP-100 Pro",
+    "brand": "FlowTech",
+    "model": "FP-100 Pro",
+    "category": "Pump",
+    "specifications": {
+      "flow_rate": "75 L/min",
+      "power": "1.2 kW",
+      "max_pressure": "8 bar"
+    },
+    "subcategory": "Centrifugal Pump",
+    "_classification": {
+      "canonical_category": "Pump",
+      "category_id": "CAT_PUMP",
+      "subcategory": "Centrifugal Pump",
+      "confidence": 1.0,
+      "matched_by": "category_exact"
+    }
+  },
+  {
+    "id": "P005",
+    "name": "ThermoSense Digital Temp Sensor TS-10",
+    "brand": "ThermoSense",
+    "model": "TS-10",
+    "category": "Temperature Sensor",
+    "specifications": {
+      "temp_range": "-50 to 200 C",
+      "voltage": "12 V",
+      "weight": "150 g"
+    },
+    "_classification": {
+      "canonical_category": "Temperature Sensor",
+      "category_id": "CAT_TEMP_SENSOR",
+      "subcategory": null,
+      "confidence": 1.0,
+      "matched_by": "category_exact"
+    }
+  },
+  {
+    "id": "P006",
+    "name": "Vortex Hydraulic Pump HP-50",
+    "brand": "Vortex",
+    "model": "HP-50",
+    "category": "Pump",
+    "specifications": {
+      "power": "2000 W",
+      "voltage": "0.4 kV",
+      "weight": "12 kg"
+    },
+    "subcategory": "Hydraulic Pump",
+    "_classification": {
+      "canonical_category": "Pump",
+      "category_id": "CAT_PUMP",
+      "subcategory": "Hydraulic Pump",
+      "confidence": 1.0,
+      "matched_by": "category_exact"
+    }
+  },
+  {
+    "id": "P007",
+    "name": "Indusrial Elec Motor X-200",
+    "brand": "",
+    "model": "X-200",
+    "category": "Industrial Motor",
+    "specifications": {
+      "power": "1.5 kW",
+      "voltage": "230 V"
+    },
+    "_classification": {
+      "canonical_category": "Industrial Motor",
+      "category_id": "CAT_MOTOR",
+      "subcategory": null,
+      "confidence": 0.95,
+      "matched_by": "category_alias"
+    }
+  },
+  {
+    "id": "P008",
+    "name": "Precision Temparature Sensr Probe",
+    "brand": "SensTech",
+    "model": "",
+    "category": "Temperature Sensor",
+    "specifications": {},
+    "_classification": {
+      "canonical_category": "Temperature Sensor",
+      "category_id": "CAT_TEMP_SENSOR",
+      "subcategory": null,
+      "confidence": 1.0,
+      "matched_by": "category_exact"
+    }
+  },
+  {
+    "id": "P009",
+    "name": "MegaVolt Heavy Duty Motor 3000",
+    "brand": "MegaVolt",
+    "model": "MV-3000",
+    "category": "Industrial Motor",
+    "specifications": {
+      "power": "3000 W",
+      "voltage": "0.44 kV",
+      "weight": "15000 g"
+    },
+    "_classification": {
+      "canonical_category": "Industrial Motor",
+      "category_id": "CAT_MOTOR",
+      "subcategory": null,
+      "confidence": 1.0,
+      "matched_by": "category_exact"
+    }
+  },
+  {
+    "id": "P010",
+    "name": "ThermoSense Probe TS-20",
+    "brand": "ThermoSense",
+    "model": "TS-20",
+    "category": "Temperature Sensor",
+    "specifications": {
+      "temp_range": "-20 to 150 C",
+      "voltage": "24 V",
+      "weight": "0.2 kg"
+    },
+    "_classification": {
+      "canonical_category": "Temperature Sensor",
+      "category_id": "CAT_TEMP_SENSOR",
+      "subcategory": null,
+      "confidence": 1.0,
+      "matched_by": "category_exact"
+    }
+  }
+]

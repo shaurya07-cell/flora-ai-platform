@@ -1,0 +1,78 @@
+{
+  "version": "1.0",
+  "taxonomy_name": "Flora Industrial Product Taxonomy",
+  "categories": [
+    {
+      "id": "CAT_MOTOR",
+      "canonical_name": "Industrial Motor",
+      "aliases": [
+        "Motor",
+        "Electric Motor",
+        "Elec Motor",
+        "Indusrial Motor",
+        "Indusrial Elec Motor"
+      ],
+      "description": "Electric and industrial motors used for mechanical drive applications.",
+      "subcategories": [
+        "AC Motor",
+        "DC Motor",
+        "Servo Motor",
+        "Stepper Motor"
+      ],
+      "expected_specifications": [
+        "power",
+        "voltage",
+        "weight",
+        "speed_rpm"
+      ]
+    },
+    {
+      "id": "CAT_PUMP",
+      "canonical_name": "Pump",
+      "aliases": [
+        "Pumps",
+        "Industrial Pump",
+        "Hydraulic Pump",
+        "Centrifugal Pump"
+      ],
+      "description": "Equipment used for moving fluids or gases via mechanical action.",
+      "subcategories": [
+        "Centrifugal Pump",
+        "Hydraulic Pump",
+        "Submersible Pump",
+        "Diaphragm Pump"
+      ],
+      "expected_specifications": [
+        "flow_rate",
+        "max_pressure",
+        "power",
+        "weight"
+      ]
+    },
+    {
+      "id": "CAT_TEMP_SENSOR",
+      "canonical_name": "Temperature Sensor",
+      "aliases": [
+        "Temp Sensor",
+        "Temperature Probe",
+        "Temparature Sensor",
+        "Temparature Sensr",
+        "Thermocouple",
+        "RTD Sensor"
+      ],
+      "description": "Devices used to sense and measure temperature in industrial processes.",
+      "subcategories": [
+        "Thermocouple",
+        "RTD",
+        "Digital Sensor",
+        "Infrared Sensor"
+      ],
+      "expected_specifications": [
+        "temp_range",
+        "voltage",
+        "accuracy",
+        "weight"
+      ]
+    }
+  ]
+}
