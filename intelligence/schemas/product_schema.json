@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flora.ai/schemas/product.schema.json",
+  "title": "FloraProduct",
+  "description": "Standard schema definition for product objects in the Flora Product Data Intelligence Engine.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the product (e.g. P001)."
+    },
+    "name": {
+      "type": "string",
+      "description": "Full commercial or display name of the product."
+    },
+    "brand": {
+      "type": "string",
+      "description": "Brand or manufacturer name."
+    },
+    "model": {
+      "type": "string",
+      "description": "Model number or product code."
+    },
+    "category": {
+      "type": "string",
+      "description": "Primary high-level product category."
+    },
+    "subcategory": {
+      "type": "string",
+      "description": "Optional secondary or sub-level product category classification."
+    },
+    "specifications": {
+      "type": "object",
+      "description": "Key-value pair map of technical attributes and specifications.",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "null"
+        ]
+      }
+    },
+    "source": {
+      "type": "object",
+      "description": "Metadata regarding the ingestion origin or extraction context of the product.",
+      "properties": {
+        "fileName": {
+          "type": "string",
+          "description": "Name of the source document or payload."
+        },
+        "fileType": {
+          "type": "string",
+          "description": "Format/extension of the source payload (e.g. pdf, csv, json, image)."
+        },
+        "page": {
+          "type": [
+            "integer",
+            "number",
+            "string"
+          ],
+          "description": "Page reference or index location within the source document."
+        },
+        "extractedBy": {
+          "type": "string",
+          "description": "System, service, or agent that extracted the data (e.g., Gemini-Flash, OCR)."
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "brand",
+    "model",
+    "category"
+  ],
+  "additionalProperties": false
+}

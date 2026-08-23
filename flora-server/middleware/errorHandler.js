@@ -22,6 +22,8 @@ const errorHandler = (err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
       message = 'The uploaded file exceeds the maximum permitted size of 10MB.';
       details.maxSize = 10485760; // 10MB in bytes
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      message = 'Invalid file payload upload field. Please select catalog files to upload.';
     }
   }
 

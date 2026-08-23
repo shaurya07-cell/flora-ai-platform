@@ -66,23 +66,28 @@ export const Documents = () => {
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get('/documents');
-
-      // Enforce controlled delay to showcase loading skeletons
-      setTimeout(() => {
-        setDocuments(response.data?.data || []);
+      const response = await axiosInstance.get('/products');
+      if (response.data?.success && Array.isArray(response.data.data)) {
+        const mappedDocs = response.data.data.map((prod) => ({
+          _id: prod._id,
+          filename: prod.sourceFile || prod.extractedData?.document?.fileName || 'Uploaded Document',
+          fileSize: 1048576, // Standard 1MB representation
+          status: prod.status === 'Verified' ? 'Processed' : prod.status === 'Rejected' ? 'Failed' : 'Processed',
+          stage: prod.status === 'Verified' ? 'Database Sync' : prod.status === 'Rejected' ? 'Schema Rejected' : 'Rules Evaluation',
+          uploadDate: prod.createdAt || new Date().toISOString(),
+          error: prod.extractedData?.validation?.errors?.[0]?.message || null
+        }));
+        setDocuments(mappedDocs);
         setIsOffline(false);
-        setLoading(false);
-      }, 1000);
+      } else {
+        setDocuments([]);
+      }
     } catch (err) {
-      console.warn('Backend server offline. Utilizing simulated documents queue.');
-
-      // Controlled delay for visual stagger
-      setTimeout(() => {
-        setDocuments(initialMockDocs);
-        setIsOffline(true);
-        setLoading(false);
-      }, 1000);
+      console.warn('Backend server error loading documents queue.');
+      setIsOffline(true);
+      setDocuments([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,24 +95,31 @@ export const Documents = () => {
     fetchDocuments();
   }, []);
 
-  const handleRetry = (docId) => {
-    setRetryingId(docId);
+  const [feedback, setFeedback] = useState(null);
 
-    // Simulate retry flow with transitions
-    setTimeout(() => {
-      setDocuments(prev => prev.map(doc => {
-        if (doc._id === docId) {
-          return {
-            ...doc,
-            status: 'Processed',
-            stage: 'Database Sync',
-            error: null
-          };
-        }
-        return doc;
-      }));
+  const handleRetry = async (docId) => {
+    if (retryingId) return; // Prevent duplicate clicks
+    setRetryingId(docId);
+    setFeedback(null);
+
+    try {
+      const response = await axiosInstance.post(`/products/${docId}/retry`);
+      if (response.data?.success) {
+        setFeedback({ type: 'success', message: 'Document re-processed successfully!' });
+      } else {
+        setFeedback({ type: 'error', message: response.data?.error?.message || 'Retry failed.' });
+      }
+    } catch (err) {
+      console.error('Failed to retry document processing:', err);
+      const errMsg = err.response?.data?.error?.message || err.message || 'Retry failed.';
+      setFeedback({
+        type: 'error',
+        message: errMsg
+      });
+    } finally {
+      await fetchDocuments();
       setRetryingId(null);
-    }, 1800);
+    }
   };
 
   const formatBytes = (bytes) => {
@@ -139,12 +151,14 @@ export const Documents = () => {
         }
       />
 
-      {isOffline && (
-        <div className="p-3 bg-status-warningSoft border border-brand-border rounded text-xs font-semibold text-status-warning flex items-center justify-between">
-          <span>Backend offline. Ingestion queue running in offline evaluation mode.</span>
-          <span className="bg-white border border-brand-border px-1.5 py-0.5 rounded text-[10px] font-mono select-none">
-            DEMO
-          </span>
+      {feedback && (
+        <div className={`p-3 border rounded text-xs font-semibold flex items-center justify-between animate-fade-in-up ${
+          feedback.type === 'success'
+            ? 'bg-status-successSoft text-status-success border-brand-border'
+            : 'bg-status-errorSoft text-status-error border-brand-border'
+        }`}>
+          <span>{feedback.message}</span>
+          <button onClick={() => setFeedback(null)} className="text-[10px] uppercase font-bold underline ml-4">Dismiss</button>
         </div>
       )}
 

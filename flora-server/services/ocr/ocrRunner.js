@@ -12,6 +12,14 @@ const pythonScriptPath = path.resolve(__dirname, '../../../main.py');
  *
  * @param {string} absoluteFilePath - The absolute path of the file to process.
  * @returns {Promise<object>} The parsed JSON object representing OCR results.
+ *
+ * The returned object always contains:
+ *   - cleanText  {string}  Readable text representation (non-empty)
+ *   - rawText    {string}  Unprocessed extraction output
+ *   - fileName   {string}  Basename of the processed file
+ *   - fileType   {string}  Detected type: 'pdf' | 'image' | 'excel'
+ *   - tables     {object}  Key-value pairs extracted from structured content
+ *   - metadata   {object}  Processing metadata (method, timestamps)
  */
 export async function runOcr(absoluteFilePath) {
     if (!absoluteFilePath) {
@@ -27,7 +35,7 @@ export async function runOcr(absoluteFilePath) {
     }
 
     // 2. Configure Python executable and timeout from environment variables
-    const pythonExecutable = process.env.PYTHON_EXECUTABLE || 'python';
+    const pythonExecutable = process.env.PYTHON_PATH || process.env.PYTHON_EXECUTABLE || 'python';
     const ocrTimeout = parseInt(process.env.OCR_TIMEOUT_MS, 10) || 60000;
 
     return new Promise((resolve, reject) => {
@@ -61,13 +69,16 @@ export async function runOcr(absoluteFilePath) {
         pyProcess.on('close', (code) => {
             clearTimeout(timer);
 
+            // Always surface stderr diagnostics to the server log (never to frontend)
+            if (stderrData.trim()) {
+                console.error('[OCR stderr]', stderrData.trim());
+            }
+
             if (code !== 0) {
-                // If there's an error from the CLI, try to parse stdout/stderr for details
-                let errorMessage = `Python OCR process exited with code ${code}`;
-                if (stderrData) {
-                    errorMessage += `: ${stderrData.trim()}`;
-                }
-                return reject(new Error(errorMessage));
+                const detail = stderrData.trim()
+                    ? `: ${stderrData.trim().split('\n').pop()}` // last stderr line
+                    : '';
+                return reject(new Error(`Python OCR process exited with code ${code}${detail}`));
             }
 
             try {
@@ -79,19 +90,27 @@ export async function runOcr(absoluteFilePath) {
 
                 const result = JSON.parse(cleanStdout);
 
-                // Handle invalid JSON or error from within the python script
+                // Python-level extraction error
                 if (result.error) {
-                    return reject(new Error(`OCR error: ${result.error}`));
+                    return reject(new Error(`OCR extraction error: ${result.error}`));
                 }
 
-                // Handle missing cleanText
-                if (!result.cleanText) {
-                    return reject(new Error('OCR result is missing cleanText'));
+                // Contract validation: cleanText must be a non-empty string
+                if (typeof result.cleanText !== 'string' || result.cleanText.trim() === '') {
+                    return reject(new Error(
+                        `OCR contract violation: cleanText is ${
+                            result.cleanText === undefined ? 'missing' :
+                            result.cleanText === null    ? 'null'    :
+                            result.cleanText === ''      ? 'empty'   : 'blank'
+                        } (fileType=${result.fileType ?? 'unknown'})`
+                    ));
                 }
 
                 resolve(result);
             } catch (err) {
-                reject(new Error(`Failed to parse Python OCR output as JSON: ${err.message}. Raw output: ${stdoutData}`));
+                // Truncate raw output in error message to avoid leaking file contents
+                const preview = stdoutData.slice(0, 200).replace(/\n/g, ' ');
+                reject(new Error(`Failed to parse Python OCR output as JSON: ${err.message}. Raw preview: ${preview}`));
             }
         });
     });

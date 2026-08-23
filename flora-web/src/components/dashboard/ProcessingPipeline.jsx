@@ -23,17 +23,16 @@ export const ProcessingPipeline = ({ stages }) => {
           const Icon = iconMap[stage.name] || UploadCloud;
           const isLast = index === stages.length - 1;
 
-          // Determine next connector style
+          // Determine connector line styling dynamically (Option A: Active Signal Flow)
           const nextStage = !isLast ? stages[index + 1] : null;
-          
           let connectorClass = 'bg-brand-border';
-          if (nextStage) {
-            // Signal travels from OCR (Complete) towards Gemini AI (Processing)
-            if (stage.name === 'OCR' && nextStage.name === 'Gemini AI') {
-              connectorClass = 'animate-signal-connector';
-            } else if (stage.status === 'Complete' && nextStage.status === 'Complete') {
-              connectorClass = 'bg-primary';
-            }
+
+          if (stage.status === 'Processing' || (nextStage && nextStage.status === 'Processing')) {
+            connectorClass = 'animate-signal-connector';
+          } else if ((stage.status === 'Complete' || stage.status === 'Ready') && nextStage && (nextStage.status === 'Complete' || nextStage.status === 'Ready')) {
+            connectorClass = 'bg-emerald-500';
+          } else if (stage.status === 'Complete' && nextStage && nextStage.status === 'Waiting') {
+            connectorClass = 'animate-signal-connector';
           }
 
           // Compute style configurations mapping the precise design language
@@ -41,6 +40,11 @@ export const ProcessingPipeline = ({ stages }) => {
             Complete: {
               container: 'border-brand-border bg-status-successSoft',
               icon: 'text-status-success bg-white border-brand-border animate-state-pop',
+              badge: 'bg-white text-status-success border-brand-border'
+            },
+            Ready: {
+              container: 'border-brand-border bg-status-successSoft',
+              icon: 'text-status-success bg-white border-brand-border',
               badge: 'bg-white text-status-success border-brand-border'
             },
             Processing: {
@@ -85,9 +89,9 @@ export const ProcessingPipeline = ({ stages }) => {
                 </span>
               </div>
 
-              {/* Connecting elements */}
+              {/* Connecting elements with dynamic signal line */}
               {!isLast && (
-                <div className="w-5 lg:w-8 h-1 rounded-full overflow-hidden shrink-0 bg-brand-border">
+                <div className="w-5 lg:w-8 h-1.5 rounded-full overflow-hidden shrink-0 bg-brand-border relative">
                   <div className={`w-full h-full ${connectorClass}`} />
                 </div>
               )}

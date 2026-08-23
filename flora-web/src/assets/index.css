@@ -3,9 +3,64 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-background text-brand-text font-sans antialiased;
+  :root {
+    --bg-background: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --text-brand-text: #0F172A;
+    --text-brand-secondary: #475569;
+    --text-brand-muted: #64748B;
+    --border-brand-border: #E2E8F0;
+    --border-brand-border-strong: #CBD5E1;
+    --bg-primary-soft: #EFF6FF;
+    --bg-success-soft: #F0FDF4;
+    --bg-warning-soft: #FFFBEB;
+    --bg-error-soft: #FEF2F2;
+    --bg-info-soft: #ECFEFF;
+    color-scheme: light;
   }
+
+  html.dark {
+    --bg-background: #0F172A;
+    --bg-surface: #1E293B;
+    --text-brand-text: #F8FAFC;
+    --text-brand-secondary: #E2E8F0;
+    --text-brand-muted: #94A3B8;
+    --border-brand-border: #334155;
+    --border-brand-border-strong: #475569;
+    --bg-primary-soft: rgba(37, 99, 235, 0.18);
+    --bg-success-soft: rgba(22, 163, 74, 0.18);
+    --bg-warning-soft: rgba(217, 119, 6, 0.18);
+    --bg-error-soft: rgba(220, 38, 38, 0.18);
+    --bg-info-soft: rgba(8, 145, 178, 0.18);
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-brand-text font-sans antialiased transition-colors duration-150;
+  }
+}
+
+/* Dark Mode Helper Overrides */
+html.dark .bg-white {
+  background-color: #1E293B !important;
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #0F172A !important;
+}
+
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: #334155 !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
 }
 
 /* 1. Page / Component Entrance Fade-In-Up */
@@ -48,13 +103,13 @@
   animation: statePop 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* 3. Pipeline Connectors Traveling Signal Animation (OCR -> Gemini AI) */
+/* 3. Pipeline Connectors Traveling Signal Animation (Running Color Flow) */
 @keyframes signalMove {
   0% {
-    left: -30%;
+    left: -40%;
   }
   100% {
-    left: 130%;
+    left: 140%;
   }
 }
 
@@ -69,9 +124,9 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 35%;
-  background: linear-gradient(90deg, transparent, #2563EB, transparent);
-  animation: signalMove 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  width: 50%;
+  background: linear-gradient(90deg, transparent, #10B981, #2563EB, #6366F1, transparent);
+  animation: signalMove 1.2s linear infinite;
 }
 
 /* Accessibility: prefers-reduced-motion overrides */

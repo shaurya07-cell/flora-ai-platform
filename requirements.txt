@@ -3,3 +3,4 @@ pymupdf
 Pillow
 pytesseract
 python-dotenv
+openpyxl

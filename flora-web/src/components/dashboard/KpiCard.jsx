@@ -38,16 +38,18 @@ export const KpiCard = ({ label, value, icon: Icon, subtext, statusColor = 'text
   }, [value, isNumeric, numericValue]);
 
   return (
-    <div className="bg-surface border border-brand-border rounded p-5 shadow-sm transition-all duration-150 hover:border-brand-borderStrong hover:-translate-y-[1px] hover:shadow flex items-start justify-between">
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-wider text-brand-muted mb-1">{label}</p>
-        <h3 className="text-3xl font-bold tracking-tight text-brand-text mb-1.5 leading-none">
+    <div className="h-full bg-surface border border-brand-border rounded p-4 sm:p-5 shadow-sm transition-all duration-150 hover:border-brand-borderStrong hover:-translate-y-[1px] hover:shadow flex items-start justify-between min-w-0">
+      <div className="flex-1 min-w-0 pr-2">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-brand-muted mb-1 truncate" title={label}>
+          {label}
+        </p>
+        <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-text mb-1.5 leading-none">
           {isNumeric ? count : value}
         </h3>
-        {subtext && <p className="text-[11px] text-brand-muted font-medium truncate">{subtext}</p>}
+        {subtext && <p className="text-[11px] text-brand-muted font-medium truncate" title={subtext}>{subtext}</p>}
       </div>
-      <div className={`p-2.5 rounded bg-slate-50 border border-brand-border shrink-0 ${statusColor}`}>
-        <Icon className="h-5 w-5" />
+      <div className={`p-2 sm:p-2.5 rounded bg-slate-50 border border-brand-border shrink-0 ${statusColor}`}>
+        <Icon className="h-4 sm:h-5 w-4 sm:w-5" />
       </div>
     </div>
   );

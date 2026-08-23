@@ -1,124 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, RefreshCw, Eye, Trash2, CheckCircle2, Award, AlertTriangle, ChevronRight, Loader2 } from 'lucide-react';
+import { Search, Filter, RefreshCw, Eye, Trash2, CheckCircle2, Award, AlertTriangle, ChevronRight, Loader2, Download } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { Button } from '../components/Button';
-import { ProductDetailsModal } from '../components/ProductDetailsModal';
+import { ProductDetailDrawer } from '../components/products/ProductDetailDrawer';
 import axiosInstance from '../lib/axios';
 
-const initialMockProducts = [
-  {
-    _id: 'prod_1',
-    status: 'Verified',
-    metadata: {
-      filename: 'flora_grow_catalog.pdf',
-      fileSize: 350100,
-      uploadDate: '2026-08-09T01:48:00.000Z'
-    },
-    validationReport: {
-      isValid: true,
-      errors: [],
-      warnings: [],
-      confidence: {
-        score: 96,
-        evidenceLevel: 'High',
-        evidence: ['SKU matches exact format pattern', 'Price matched currency structure']
-      }
-    },
-    productData: {
-      productName: 'Motor X200',
-      sku: 'FLORA-MX-200',
-      description: 'High-torque brushless motor for automated ventilation flaps.',
-      brand: 'FloraGrow',
-      price: 299.99,
-      currency: 'USD',
-      dimensions: '15 x 10 x 10 cm',
-      specifications: {
-        power: '200W',
-        voltage: '24V',
-        rpm: '3000'
-      },
-      complianceFlags: ['CE', 'RoHS', 'UL']
-    }
-  },
-  {
-    _id: 'prod_2',
-    status: 'Needs Review',
-    metadata: {
-      filename: 'pump_catalog.pdf',
-      fileSize: 890000,
-      uploadDate: '2026-08-09T01:35:00.000Z'
-    },
-    validationReport: {
-      isValid: false,
-      errors: [
-        {
-          field: 'price',
-          message: 'Price must be a positive decimal number',
-          value: -5.0
-        }
-      ],
-      warnings: [],
-      confidence: {
-        score: 85,
-        evidenceLevel: 'Medium',
-        evidence: ['SKU matches format pattern', 'Price currency matched']
-      }
-    },
-    productData: {
-      productName: 'Pump P100',
-      sku: 'FLORA-PP-100',
-      description: 'Corrosion resistant liquid catalog pump.',
-      brand: 'FloraGrow',
-      price: -5.0,
-      currency: 'USD',
-      dimensions: '20 x 15 x 12 cm',
-      specifications: {
-        flowRate: '100L/min',
-        inlet: '1 inch'
-      },
-      complianceFlags: ['CE']
-    }
-  },
-  {
-    _id: 'prod_3',
-    status: 'Needs Review',
-    metadata: {
-      filename: 'valve_catalog.pdf',
-      fileSize: 450000,
-      uploadDate: '2026-08-09T01:22:00.000Z'
-    },
-    validationReport: {
-      isValid: false,
-      errors: [],
-      warnings: [
-        {
-          field: 'brand',
-          message: 'Brand "Valvoco" is not matching the configured brand whitelist.',
-          value: 'Valvoco'
-        }
-      ],
-      confidence: {
-        score: 72,
-        evidenceLevel: 'Medium',
-        evidence: ['SKU format validated', 'Price verified positive']
-      }
-    },
-    productData: {
-      productName: 'Smart Valve V40',
-      sku: 'FLORA-SV-40',
-      description: 'Motorized ball valve with feedback metrics.',
-      brand: 'Valvoco',
-      price: 89.0,
-      currency: 'USD',
-      dimensions: '12 x 8 x 8 cm',
-      specifications: {
-        pressure: 'PN16',
-        thread: 'G1/2'
-      },
-      complianceFlags: ['CE', 'RoHS']
-    }
-  }
-];
+
 
 // Pulsing loader grid
 const TableSkeletonRow = () => (
@@ -137,15 +24,53 @@ const TableSkeletonRow = () => (
 export const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isOffline, setIsOffline] = useState(false);
+  const [exportingFormat, setExportingFormat] = useState(null);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [brandFilter, setBrandFilter] = useState('ALL');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
 
+  const handleExport = async (format) => {
+    if (exportingFormat) return;
+    setExportingFormat(format);
+    try {
+      const response = await axiosInstance.get(`/products/export?format=${format}`, {
+        responseType: format === 'csv' ? 'blob' : 'json'
+      });
+
+      if (format === 'csv') {
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'text/csv' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'flora_product_catalog.csv');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        const jsonStr = JSON.stringify(response.data?.data || response.data, null, 2);
+        const url = window.URL.createObjectURL(new Blob([jsonStr], { type: 'application/json' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'flora_product_catalog.json');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error(`Export ${format} failed:`, err);
+      alert(`Failed to export product catalog as ${format.toUpperCase()}`);
+    } finally {
+      setExportingFormat(null);
+    }
+  };
+
   const fetchProducts = async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = {};
       if (statusFilter !== 'ALL') params.status = statusFilter;
@@ -154,21 +79,17 @@ export const Products = () => {
 
       const response = await axiosInstance.get('/products', { params });
 
-      // Delay for skeleton transition
       setTimeout(() => {
         setProducts(response.data?.data || []);
-        setIsOffline(false);
         setLoading(false);
-      }, 1000);
+      }, 500);
     } catch (err) {
-      console.warn('Backend server offline. Utilizing local mock products.');
-
-      // Delay for skeleton transition
+      console.error(err);
       setTimeout(() => {
-        setProducts(initialMockProducts);
-        setIsOffline(true);
+        setError('Unable to load products. Backend API is unreachable.');
+        setProducts([]);
         setLoading(false);
-      }, 1000);
+      }, 500);
     }
   };
 
@@ -225,31 +146,17 @@ export const Products = () => {
   const handleDeleteOne = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
-    if (isOffline) {
-      setProducts(prev => prev.filter(p => p._id !== id));
-    } else {
-      try {
-        await axiosInstance.delete(`/products/${id}`);
-        fetchProducts();
-      } catch (err) {
-        console.error(err);
-      }
+    try {
+      await axiosInstance.delete(`/products/${id}`);
+      fetchProducts();
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const brandsList = Array.from(new Set(products.map(p => p.productData?.brand || p.brand))).filter(Boolean);
 
-  const filteredProducts = isOffline
-    ? products.filter(p => {
-      const matchesQuery = searchQuery
-        ? (p.productData?.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.productData?.sku?.toLowerCase().includes(searchQuery.toLowerCase()))
-        : true;
-      const matchesStatus = statusFilter !== 'ALL' ? p.status === statusFilter : true;
-      const matchesBrand = brandFilter !== 'ALL' ? (p.productData?.brand === brandFilter) : true;
-      return matchesQuery && matchesStatus && matchesBrand;
-    })
-    : products;
+  const filteredProducts = products;
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-fade-in-up">
@@ -257,18 +164,44 @@ export const Products = () => {
         title="Canonical Products Catalogue"
         subtitle="Manage and inspect AI-extracted canonical product records from catalogues."
         actions={
-          <Button variant="outline" size="sm" onClick={fetchProducts} icon={RefreshCw}>
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              icon={exportingFormat === 'json' ? Loader2 : Download}
+              disabled={exportingFormat !== null}
+              onClick={() => handleExport('json')}
+            >
+              Export JSON
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={exportingFormat === 'csv' ? Loader2 : Download}
+              disabled={exportingFormat !== null}
+              onClick={() => handleExport('csv')}
+            >
+              Export CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={fetchProducts} icon={RefreshCw}>
+              Refresh
+            </Button>
+          </div>
         }
       />
 
-      {isOffline && (
-        <div className="p-3 bg-status-warningSoft border border-brand-border rounded text-xs font-semibold text-status-warning flex items-center justify-between">
-          <span>Backend offline. Ingestion catalogue running in offline evaluation mode.</span>
-          <span className="bg-white border border-brand-border px-1.5 py-0.5 rounded text-[10px] font-mono select-none">
-            DEMO
-          </span>
+      {error && (
+        <div className="p-4 bg-status-errorSoft border border-brand-border rounded flex items-center justify-between animate-fade-in-up">
+          <div className="flex items-center gap-3 text-status-error">
+            <AlertTriangle className="h-5 w-5" />
+            <div>
+              <span className="text-sm font-bold block leading-none">Error</span>
+              <span className="text-xs mt-1 block opacity-90">{error}</span>
+            </div>
+          </div>
+          <Button variant="outline" size="sm" onClick={fetchProducts} icon={RefreshCw}>
+            Retry
+          </Button>
         </div>
       )}
 
@@ -435,11 +368,15 @@ export const Products = () => {
         </div>
       </div>
 
-      {/* Details inspector modal */}
+      {/* Details inspector drawer */}
       {selectedProduct && (
-        <ProductDetailsModal
+        <ProductDetailDrawer
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
+          onDeleteSuccess={() => {
+            setSelectedProduct(null);
+            fetchProducts();
+          }}
         />
       )}
     </div>

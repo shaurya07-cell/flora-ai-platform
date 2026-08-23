@@ -104,3 +104,17 @@ Compliance: CE, RoHS
     assert.match(prompt, /Dimensions/);
     assert.match(prompt, /20 x 15 x 12 cm/);
 });
+
+test('Extractor times out when Gemini API call exceeds timeout', async () => {
+    process.env.GEMINI_API_KEY = 'test_key';
+    process.env.GEMINI_TIMEOUT_MS = '50';
+
+    await assert.rejects(
+        () => extractProduct('Sample product text for timeout test'),
+        (err) => {
+            return err.code === 'GEMINI_API_ERROR' || err.message.includes('timed out');
+        }
+    );
+
+    delete process.env.GEMINI_TIMEOUT_MS;
+});

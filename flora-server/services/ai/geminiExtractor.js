@@ -88,7 +88,8 @@ async function extractProduct(documentText) {
     let response;
 
     try {
-        response = await ai.models.generateContent({
+        const geminiTimeoutMs = parseInt(process.env.GEMINI_TIMEOUT_MS, 10) || 45000;
+        const geminiPromise = ai.models.generateContent({
             model: DEFAULT_MODEL,
             contents: buildExtractionPrompt(documentText),
             config: {
@@ -96,9 +97,17 @@ async function extractProduct(documentText) {
                 responseSchema: CANONICAL_PRODUCT_SCHEMA,
             }
         });
+
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => {
+                reject(new Error(`Gemini API call timed out after ${geminiTimeoutMs}ms`));
+            }, geminiTimeoutMs);
+        });
+
+        response = await Promise.race([geminiPromise, timeoutPromise]);
     } catch (error) {
         throw new GeminiExtractionError(
-            'Gemini extraction request failed',
+            'Gemini extraction request failed: ' + (error.message || 'API call failed'),
             {
                 code: 'GEMINI_API_ERROR',
                 cause: error

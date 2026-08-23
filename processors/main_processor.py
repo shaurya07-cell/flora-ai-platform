@@ -7,6 +7,7 @@ from extractors.pdf_extractor import (
     extract_text_from_scanned_pdf
 )
 from extractors.image_ocr import extract_text_from_image
+from extractors.excel_extractor import extract_text_from_excel
 
 from cleaners.text_cleaner import clean_text
 from utils.table_extractor import extract_key_value_pairs
@@ -47,18 +48,23 @@ def process_file(file_path):
             extraction_method = "ocr"
             raw_text = extract_text_from_image(file_path)
 
-        # 🔹 Excel (not implemented yet)
+        # 🔹 Excel / XLSX handling
         elif file_type == "excel":
-            print("[PIPELINE] Excel not implemented")
+            print("[PIPELINE] Using Excel extractor for spreadsheet")
             extraction_method = "excel_parser"
-            raw_text = ""
+            raw_text = extract_text_from_excel(file_path)
 
         else:
             print("[PIPELINE] Unsupported file type")
             return None
 
         # 🔹 CLEAN TEXT
-        clean_text_output = clean_text(raw_text)
+        # Excel extractor already produces structured plain text — skip the OCR
+        # text cleaner because its word-concatenation regex destroys readability.
+        if file_type == "excel":
+            clean_text_output = raw_text
+        else:
+            clean_text_output = clean_text(raw_text)
 
         # 🔹 TABLE EXTRACTION
         tables = extract_key_value_pairs(clean_text_output)
