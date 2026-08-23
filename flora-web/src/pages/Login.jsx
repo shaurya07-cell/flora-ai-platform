@@ -27,24 +27,40 @@ export const Login = () => {
       const accessToken = params.get('access_token');
       if (accessToken) {
         setLoading(true);
-        fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`)
+        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        })
           .then((res) => res.json())
           .then(async (profile) => {
             if (profile && profile.email) {
               await googleOAuth({
-                id: profile.sub || profile.email,
-                name: profile.name || profile.given_name || profile.email.split('@')[0],
-                email: profile.email,
-                avatar: profile.picture
+                token: accessToken,
+                userProfile: {
+                  id: profile.sub || profile.email,
+                  name: profile.name || profile.given_name || profile.email.split('@')[0],
+                  email: profile.email,
+                  avatar: profile.picture
+                }
               });
-              // Clear hash from URL cleanly
+              window.history.replaceState(null, '', window.location.pathname);
+              navigate(from, { replace: true });
+            } else {
+              // Fallback to server-side profile resolution using token
+              await googleOAuth({ token: accessToken });
               window.history.replaceState(null, '', window.location.pathname);
               navigate(from, { replace: true });
             }
           })
-          .catch((err) => {
-            console.error('Failed to fetch Google profile:', err);
-            setError('Google authentication failed to retrieve user profile.');
+          .catch(async (err) => {
+            console.warn('Client-side Google profile fetch failed, fallback to server verification:', err);
+            try {
+              await googleOAuth({ token: accessToken });
+              window.history.replaceState(null, '', window.location.pathname);
+              navigate(from, { replace: true });
+            } catch (backendErr) {
+              console.error('Failed to complete Google OAuth:', backendErr);
+              setError(backendErr.message || 'Google authentication failed to complete session.');
+            }
           })
           .finally(() => setLoading(false));
       }

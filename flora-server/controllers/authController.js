@@ -256,7 +256,7 @@ export const googleAuth = async (req, res, next) => {
     }
 
     // Process token payload if present
-    const { token: idToken, userProfile } = req.body || {};
+    let { token: idToken, userProfile } = req.body || {};
     if (!idToken && !userProfile) {
       return res.status(400).json({
         success: false,
@@ -265,6 +265,30 @@ export const googleAuth = async (req, res, next) => {
           message: 'Google OAuth authentication token is missing from request.'
         }
       });
+    }
+
+    // If userProfile is missing or incomplete, but token is present, fetch profile from Google API
+    if ((!userProfile || !userProfile.email) && idToken) {
+      try {
+        const googleRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${idToken}` }
+        });
+        if (googleRes.ok) {
+          const profileData = await googleRes.json();
+          if (profileData && profileData.email) {
+            userProfile = {
+              id: profileData.sub || profileData.email,
+              name: profileData.name || profileData.given_name || profileData.email.split('@')[0],
+              email: profileData.email,
+              avatar: profileData.picture
+            };
+          }
+        } else {
+          console.warn(`[OAUTH] Google UserInfo fetch returned status ${googleRes.status}`);
+        }
+      } catch (fetchErr) {
+        console.error('[OAUTH] Server-side Google UserInfo fetch failed:', fetchErr.message);
+      }
     }
 
     // Provision or update user from OAuth payload
