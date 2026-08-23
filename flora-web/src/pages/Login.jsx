@@ -90,7 +90,7 @@ export const Login = () => {
         const redirectUri = window.location.origin + '/login';
         const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
           config.googleClientId
-        )}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=email%20profile`;
+        )}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent('openid email profile')}`;
         window.location.href = googleAuthUrl;
       } else {
         setOauthModal({ isOpen: true, provider: 'Google' });

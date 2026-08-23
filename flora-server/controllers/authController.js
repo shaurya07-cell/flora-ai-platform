@@ -286,6 +286,22 @@ export const googleAuth = async (req, res, next) => {
         } else {
           console.warn(`[OAUTH] Google UserInfo fetch returned status ${googleRes.status}`);
         }
+
+        // Secondary fallback: query Google tokeninfo if email is still unresolved
+        if (!userProfile || !userProfile.email) {
+          const tokenInfoRes = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${encodeURIComponent(idToken)}`);
+          if (tokenInfoRes.ok) {
+            const tokenData = await tokenInfoRes.json();
+            if (tokenData && tokenData.email) {
+              userProfile = {
+                id: tokenData.sub || tokenData.email,
+                name: tokenData.name || tokenData.email.split('@')[0],
+                email: tokenData.email,
+                avatar: null
+              };
+            }
+          }
+        }
       } catch (fetchErr) {
         console.error('[OAUTH] Server-side Google UserInfo fetch failed:', fetchErr.message);
       }
