@@ -89,8 +89,9 @@ export const AuthProvider = ({ children }) => {
     return { googleConfigured: false, githubConfigured: false, googleClientId: null, githubClientId: null };
   };
 
-  const googleOAuth = async (userProfile) => {
-    const res = await axiosInstance.post('/auth/oauth/google', { userProfile });
+  const googleOAuth = async (payload) => {
+    const postBody = payload?.token || payload?.userProfile ? payload : { userProfile: payload };
+    const res = await axiosInstance.post('/auth/oauth/google', postBody);
     if (res.data?.success && res.data?.data) {
       const { token: newToken, user: userData } = res.data.data;
       setToken(newToken);
@@ -100,8 +101,9 @@ export const AuthProvider = ({ children }) => {
     throw new Error(res.data?.error?.message || 'Google OAuth failed');
   };
 
-  const githubOAuth = async (userProfile) => {
-    const res = await axiosInstance.post('/auth/oauth/github', { userProfile });
+  const githubOAuth = async (payload) => {
+    const postBody = payload?.token || payload?.userProfile ? payload : { userProfile: payload };
+    const res = await axiosInstance.post('/auth/oauth/github', postBody);
     if (res.data?.success && res.data?.data) {
       const { token: newToken, user: userData } = res.data.data;
       setToken(newToken);
